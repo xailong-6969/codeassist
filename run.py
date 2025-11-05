@@ -47,7 +47,10 @@ HF_TOKEN = os.environ.get("HF_TOKEN")
 
 DOCKER_CLIENT = None
 
-CODEASSIST_VERSION = os.open("VERSION", "r").read().strip()
+CODEASSIST_VERSION = "unknown"
+
+with open("VERSION", "r", encoding="utf-8") as version_file:
+    CODEASSIST_VERSION = version_file.read().strip()
 
 # Ensure logs directory exists
 os.makedirs("logs", exist_ok=True)
@@ -1007,7 +1010,8 @@ CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
         style=GENSYN_COLOR,
     )
     CONSOLE.print(
-        "CodeAssist - Developed by Gensyn @ https://gensyn.ai/", style=GENSYN_COLOR
+        f"CodeAssist {CODEASSIST_VERSION} - Developed by Gensyn @ https://gensyn.ai/",
+        style=GENSYN_COLOR,
     )
 
     if not detect_docker():
