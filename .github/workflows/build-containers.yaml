@@ -5,9 +5,7 @@ on:
 
 jobs:
   build-web-ui:
-    runs-on:
-      labels:
-        - ubuntu-ci-4core
+    runs-on: ubuntu-latest
     environment:
       name: Docker
     steps:
@@ -39,9 +37,7 @@ jobs:
             NEXT_PUBLIC_ALCHEMY_API_KEY=wvs3CE89g2JwoshNNCMe1
 
   build-zero-style-ui:
-    runs-on:
-      labels:
-        - ubuntu-ci-4core
+    runs-on: ubuntu-latest
     environment:
       name: Docker
     steps:
