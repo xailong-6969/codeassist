@@ -48,14 +48,9 @@ app = FastAPI(
 # Apply route class to auto-populate logging context
 app.router.route_class = LoggingContextRoute
 
-origins = [
-    "http://localhost:3001",
-    "http://localhost:3000",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -137,3 +132,4 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content=create_error_response(error="Internal server error", details=str(exc)),
     )
+
