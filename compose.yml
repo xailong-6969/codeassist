@@ -7,13 +7,14 @@ services:
       - "11434:11434"
     volumes:
       - ./ollama-data:/root/.ollama
+
   web-ui:
     build:
       context: ./web-ui
       args:
-        - NEXT_PUBLIC_TESTER_URL=/api/tester
-        - NEXT_PUBLIC_STATE_SERVICE_URL=/api/backend
-        - NEXT_PUBLIC_POLICY_MODELS_URL=/api/policy
+        - NEXT_PUBLIC_TESTER_URL=http://localhost:8008
+        - NEXT_PUBLIC_STATE_SERVICE_URL=http://localhost:8000
+        - NEXT_PUBLIC_POLICY_MODELS_URL=http://localhost:8001
         - NEXT_PUBLIC_ALCHEMY_API_KEY=wvs3CE89g2JwoshNNCMe1
     networks:
       - codeassist_network
@@ -23,13 +24,14 @@ services:
       - ./persistent-data:/app/persistent-data
     environment:
       - PERSISTENT_DATA_DIR=/app/persistent-data
+
   simulation-ui:
     build:
       context: ./web-ui
       args:
-        - NEXT_PUBLIC_TESTER_URL=/api/tester
-        - NEXT_PUBLIC_STATE_SERVICE_URL=/api/backend
-        - NEXT_PUBLIC_POLICY_MODELS_URL=/api/policy
+        - NEXT_PUBLIC_TESTER_URL=http://localhost:8008
+        - NEXT_PUBLIC_STATE_SERVICE_URL=http://localhost:8000
+        - NEXT_PUBLIC_POLICY_MODELS_URL=http://localhost:8001
         - NEXT_PUBLIC_SIMULATION_MODE=true
         - NEXT_PUBLIC_ALCHEMY_API_KEY=wvs3CE89g2JwoshNNCMe1
     networks:
@@ -40,13 +42,14 @@ services:
       - ./persistent-data:/app/persistent-data
     environment:
       - PERSISTENT_DATA_DIR=/app/persistent-data
+
   zero-style-ui:
     build:
       context: ./web-ui
       args:
-        - NEXT_PUBLIC_TESTER_URL=/api/tester
-        - NEXT_PUBLIC_STATE_SERVICE_URL=/api/backend
-        - NEXT_PUBLIC_POLICY_MODELS_URL=/api/policy
+        - NEXT_PUBLIC_TESTER_URL=http://localhost:8008
+        - NEXT_PUBLIC_STATE_SERVICE_URL=http://localhost:8000
+        - NEXT_PUBLIC_POLICY_MODELS_URL=http://localhost:8001
         - NEXT_PUBLIC_ZERO_STYLE_MODE=true
     networks:
       - codeassist_network
@@ -56,6 +59,7 @@ services:
       - ./persistent-data:/app/persistent-data
     environment:
       - PERSISTENT_DATA_DIR=/app/persistent-data
+
   state-service:
     build: ./state-service
     networks:
@@ -72,6 +76,7 @@ services:
       - SOLUTION_TESTER_BASE_URL=http://solution-tester:8008
       - POLICY_MODEL_BASE_URL=http://policy-models:8001
       - TELEMETRY_BASE_URL=http://telemetry-api.telemetry-api-staging.svc.internal-apps-central1.clusters.gensyn.ai
+
   solution-tester:
     build: ./solution-tester
     networks:
@@ -97,5 +102,6 @@ services:
       - ASM_ASSISTANT_MODEL_PATH=/app/persistent-data/trainer/models/asm_assistant_model.pt
       - ASM_FEATURIZER_PATH=/app/persistent-data/trainer/models/asm_featurizer.pt
       - ASM_HUMAN_MODEL_PATH=/app/persistent-data/trainer/models/asm_assistant_model.pt
+
 networks:
   codeassist_network: {}
