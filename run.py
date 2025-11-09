@@ -292,8 +292,7 @@ def setup_ollama(config: Config) -> docker.models.containers.Container:
 
 def setup_web_ui(config: Config) -> docker.models.containers.Container:
     global DOCKER_CLIENT
-    image = f"gensynai/codeassist-web-ui:{config.branch}"
-
+    
     CONSOLE.print("Setting up Web UI...", style=LOG_COLOR)
 
     logger.info("Checking for existing Web UI containers...")
@@ -303,14 +302,33 @@ def setup_web_ui(config: Config) -> docker.models.containers.Container:
     except docker.errors.NotFound:
         logger.info("No existing Web UI container found.")
 
-    if not config.no_pull:
-        logger.info(f"Pulling Web UI image at tag {config.branch}...")
-        DOCKER_CLIENT.images.pull(image)
-        logger.info("Web UI image pulled successfully.")
+    # BUILD locally instead of pulling from Docker Hub
+    logger.info("Building Web UI image locally with custom configuration...")
+    CONSOLE.print("Building Web UI locally (this may take a few minutes)...", style=INFO_COLOR)
+    
+    try:
+        image, build_logs = DOCKER_CLIENT.images.build(
+            path="./web-ui",
+            tag="codeassist-web-ui:local",
+            buildargs={
+                "NEXT_PUBLIC_TESTER_URL": "/api/tester",
+                "NEXT_PUBLIC_STATE_SERVICE_URL": "/api/backend",
+                "NEXT_PUBLIC_POLICY_MODELS_URL": "/api/policy",
+                "NEXT_PUBLIC_ALCHEMY_API_KEY": "wvs3CE89g2JwoshNNCMe1",
+            },
+            rm=True,
+            forcerm=True,
+        )
+        logger.info("Web UI image built successfully.")
+        CONSOLE.print("Web UI image built successfully", style=SUCCESS_COLOR)
+    except docker.errors.BuildError as e:
+        logger.error(f"Failed to build Web UI image: {e}")
+        CONSOLE.print(f"Failed to build Web UI image: {e}", style=ERROR_COLOR)
+        raise
 
     logger.info("Starting Web UI container...")
     container = DOCKER_CLIENT.containers.run(
-        image,
+        "codeassist-web-ui:local",  # Use locally built image
         detach=True,
         network=config.network_name,
         auto_remove=False,
@@ -482,8 +500,7 @@ def setup_policy_models(config: Config) -> docker.models.containers.Container:
 
 def setup_zero_style_ui(config: Config) -> docker.models.containers.Container:
     global DOCKER_CLIENT
-    image = f"gensynai/codeassist-zero-style-ui:{config.branch}"
-
+    
     CONSOLE.print("Setting up Zero-style UI...", style=LOG_COLOR)
 
     logger.info("Checking for existing Zero-style UI containers...")
@@ -493,14 +510,33 @@ def setup_zero_style_ui(config: Config) -> docker.models.containers.Container:
     except docker.errors.NotFound:
         logger.info("No existing Zero-style UI container found.")
 
-    if not config.no_pull:
-        logger.info(f"Pulling Zero-style UI image at tag {config.branch}...")
-        DOCKER_CLIENT.images.pull(image)
-        logger.info("Zero-style UI image pulled successfully.")
+    # BUILD locally instead of pulling from Docker Hub
+    logger.info("Building Zero-style UI image locally with custom configuration...")
+    CONSOLE.print("Building Zero-style UI locally...", style=INFO_COLOR)
+    
+    try:
+        image, build_logs = DOCKER_CLIENT.images.build(
+            path="./web-ui",
+            tag="codeassist-zero-style-ui:local",
+            buildargs={
+                "NEXT_PUBLIC_TESTER_URL": "/api/tester",
+                "NEXT_PUBLIC_STATE_SERVICE_URL": "/api/backend",
+                "NEXT_PUBLIC_POLICY_MODELS_URL": "/api/policy",
+                "NEXT_PUBLIC_ZERO_STYLE_MODE": "true",
+            },
+            rm=True,
+            forcerm=True,
+        )
+        logger.info("Zero-style UI image built successfully.")
+        CONSOLE.print("Zero-style UI image built successfully", style=SUCCESS_COLOR)
+    except docker.errors.BuildError as e:
+        logger.error(f"Failed to build Zero-style UI image: {e}")
+        CONSOLE.print(f"Failed to build Zero-style UI image: {e}", style=ERROR_COLOR)
+        raise
 
     logger.info("Starting Zero-style UI container...")
     container = DOCKER_CLIENT.containers.run(
-        image,
+        "codeassist-zero-style-ui:local",  # Use locally built image
         detach=True,
         network=config.network_name,
         auto_remove=False,
@@ -581,7 +617,7 @@ def cleanup_zero_style_recordings(episodes_dir: Path) -> None:
                 else:
                     entry.unlink()
                 removed += 1
-            except Exception as exc:  # pragma: no cover - defensive
+            except Exception as exc:
                 logger.warning(
                     "Failed to remove zero-style recording artifact %s: %s",
                     entry,
@@ -605,7 +641,7 @@ def cleanup_zero_style_recordings(episodes_dir: Path) -> None:
                 episodes_dir,
             )
 
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception as exc:
         logger.warning(
             "Failed to clean anchored zero-style recordings in %s: %s",
             episodes_dir,
@@ -639,7 +675,7 @@ def run_training(config: Config) -> bool:
         with open(config_path, "r", encoding="utf-8") as handle:
             training_config = json.load(handle)
         logger.info(f"Loaded training config from {config_path}")
-    except Exception as exc:  # pragma: no cover - defensive file handling
+    except Exception as exc:
         logger.error(f"Failed to load training config: {exc}")
         CONSOLE.print(f"Failed to load training config: {exc}", style=ERROR_COLOR)
         return False
@@ -986,7 +1022,7 @@ CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCC                        CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCC                        CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC                        CC                        CCCCCCCCCCCCCCC
