@@ -17,15 +17,15 @@ const nextConfig = {
     return [
       {
         source: '/api/backend/:path*',
-        destination: 'http://state-service:8000/:path*',
+        destination: 'http://codeassist-state-service:8000/:path*',
       },
       {
         source: '/api/tester/:path*',
-        destination: 'http://solution-tester:8008/:path*',
+        destination: 'http://codeassist-solution-tester:8008/:path*',
       },
       {
         source: '/api/policy/:path*',
-        destination: 'http://policy-models:8001/:path*',
+        destination: 'http://codeassist-policy-model:8001/:path*',
       },
       {
         source: '/api/turnkey/:path*',
